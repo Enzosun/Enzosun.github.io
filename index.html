@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>仅一终端消费者体验全价值流</title>
+  <style>
+    :root {
+      --brand: #1a5fa8;
+      --brand-light: #e8f0fb;
+      --accent: #e87722;
+      --text: #1d2330;
+      --text-muted: #5a6378;
+      --border: #d8e0ec;
+      --bg: #f5f7fc;
+      --white: #ffffff;
+      --stage-colors: #1a5fa8, #2e7d4f, #b94f00, #7b3fa8, #0077a8, #a84f4f, #4f7b00;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans CN", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      background: linear-gradient(135deg, #0e3d7a 0%, #1a5fa8 60%, #2277cc 100%);
+      color: #fff;
+      padding: 48px 60px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content: "";
+      position: absolute;
+      right: -80px; top: -80px;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+    .page-header::after {
+      content: "";
+      position: absolute;
+      right: 80px; bottom: -100px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .page-header .label {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin-bottom: 12px;
+    }
+    .page-header h1 {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .page-header .subtitle {
+      font-size: 14px;
+      opacity: 0.72;
+    }
+
+    /* ── Nav pills ── */
+    .nav-wrap {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 60px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .nav-wrap a {
+      display: block;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    .nav-wrap a:hover,
+    .nav-wrap a.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+    }
+
+    /* ── Main layout ── */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Stage card ── */
+    .stage-card {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      margin-bottom: 32px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .stage-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .stage-num {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stage-title-wrap h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .stage-goal {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── Body grid ── */
+    .stage-body {
+      display: grid;
+      grid-template-columns: 1fr 260px 220px;
+      gap: 0;
+    }
+    @media (max-width: 900px) {
+      .stage-body { grid-template-columns: 1fr; }
+    }
+
+    .col {
+      padding: 22px 24px;
+      border-right: 1px solid var(--border);
+    }
+    .col:last-child { border-right: none; }
+
+    .col-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--brand);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .col-label svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Activity list ── */
+    .activity-group { margin-bottom: 18px; }
+    .activity-group:last-child { margin-bottom: 0; }
+    .activity-group-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brand);
+      margin-bottom: 8px;
+      padding-left: 10px;
+      border-left: 3px solid var(--accent);
+    }
+    .activity-item {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.65;
+      padding-left: 10px;
+      margin-bottom: 6px;
+      position: relative;
+    }
+    .activity-item::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 9px;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    /* ── Deliverables ── */
+    .deliverable-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text);
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+    .deliverable-item .dot {
+      flex-shrink: 0;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 6px;
+    }
+
+    /* ── Stakeholders ── */
+    .stakeholder-chip {
+      display: inline-block;
+      background: var(--brand-light);
+      color: var(--brand);
+      font-size: 11.5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin: 3px 3px 3px 0;
+      border: 1px solid #c5d7f0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: var(--white);
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="label">全价值流梳理 · 消费者体验视角</div>
+  <h1>仅一终端消费者体验全价值流</h1>
+  <p class="subtitle">从消费者洞察到市场运营 —— 仅一在做的 7 大阶段努力</p>
+</header>
+
+<nav class="nav-wrap" id="stageNav">
+  <a href="#stage1">① 洞察与定义</a>
+  <a href="#stage2">② 产品策划</a>
+  <a href="#stage3">③ 工艺方案</a>
+  <a href="#stage4">④ 试制验证</a>
+  <a href="#stage5">⑤ 量产导入</a>
+  <a href="#stage6">⑥ 空间体验</a>
+  <a href="#stage7">⑦ 市场运营</a>
+</nav>
+
+<main class="main">
+
+  <!-- Stage 1 -->
+  <div class="stage-card" id="stage1">
+    <div class="stage-header">
+      <div class="stage-num" style="background:#1a5fa8">1</div>
+      <div class="stage-title-wrap">
+        <h2>消费者洞察与体验定义</h2>
+        <p class="stage-goal">在项目最前端，从更高维度理解终端消费者在"看、用、送、分享"等方面真正重视的体验要素，为后续包装与设备决策定方向</p>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="col">
+        <div class="col-label">
+          <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 5v4l2.5 1.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          仅一在做什么
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">创新活动交流调研</div>
+          <div class="activity-item">通过蒙牛创新日、东阿阿胶 / 王老吉产品交流策划会等，前置捕捉品牌方对终端消费者需求的最新判断</div>
+          <div class="activity-item">接待雀巢、伊利、达能、健民、三九等品牌市场团队来访参观交流，对齐设备能力与消费者体验目标</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">行业与客户经验交流</div>
+          <div class="activity-item">参与大健康沙龙、OTC 协会市场营销会等行业交流活动，收集不同品牌对终端体验的共性趋势判断</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">国际优秀产品收集与灵感沉淀</div>
+          <div class="activity-item">定期前往国际市场，系统性收集结构、开启方式、信息表达、礼赠感、使用路径等方面的体验亮点</div>
+          <div class="activity-item">集中陈列于西四展厅，作为内部团队及来访客户的"体验灵感库"</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">体验品制作</div>
+          <div class="activity-item">每年两次内部体验品礼盒项目，在设计、制作和反馈回收中沉淀终端体验经验</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M5 5h6M5 11h4"/></svg>
+          关键交付物
+        </div>
+        <div class="deliverable-item"><div class="dot"></div>《创新活动 / 交流会纪要》</div>
+        <div class="deliverable-item"><div class="dot"></div>《终端体验趋势要点整理》（基于蒙牛、雀巢、OTC 会等活动）</div>
+        <div class="deliverable-item"><div class="dot"></div>每年两次《体验品体验反馈与调研小结》</div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 13c0-2.5 2-4 5-4s5 1.5 5 4M11 9c2 0 4 1 4 4"/></svg>
+          闭环协同对象
+        </div>
+        <span class="stakeholder-chip">市场（信息收集拉动）</span>
+        <span class="stakeholder-chip">销售（信息收集拉动）</span>
+        <span class="stakeholder-chip">技术（改进方案制定及执行落地）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 2 -->
+  <div class="stage-card" id="stage2">
+    <div class="stage-header">
+      <div class="stage-num" style="background:#2e7d4f">2</div>
+      <div class="stage-title-wrap">
+        <h2>联合产品策划与包装创新</h2>
+        <p class="stage-goal">把品牌想要的消费者体验转化为具体的产品形态、包装结构和视觉创意，让终端"看得见、摸得着、愿意多付一点钱"</p>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="col">
+        <div class="col-label">仅一在做什么</div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">包装结构与造型策划</div>
+          <div class="activity-item">在产品策划环节提供同类感袋 / 盒打样，协助客户把想法变成可评估的包装概念并实现消费者感受体验</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">造型与 IP / 主题包装创新</div>
+          <div class="activity-item">雀巢比卡丘造型包装（单价上涨约 35%）</div>
+          <div class="activity-item">雀巢世界杯球衣袋型（袋子升级为球衣形状）</div>
+          <div class="activity-item">永璞"福袋咖啡"、"卡皮巴拉咖啡"造型升级，增强货架吸引力和社交分享属性</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">包装方式与使用方式优化</div>
+          <div class="activity-item">真奥金银花口服液从 PVC 改为液体 stick；同仁堂胶原蛋白片从瓶装改为 stick</div>
+          <div class="activity-item">艾兰得代餐粉双撕口；奇正润湿剂优化撕口设计，减少使用不便</div>
+          <div class="activity-item">百跃奶粉"羊头"造型、和黄板蓝根颗粒八边封，提升辨识度和品牌感</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">功能性与信息引导设计优化</div>
+          <div class="activity-item">普利泡罩在泡罩板上直接标注"周一～周日"，帮助消费者规范用药</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">关键交付物</div>
+        <div class="deliverable-item"><div class="dot"></div>包装结构 / 造型草图与效果图</div>
+        <div class="deliverable-item"><div class="dot"></div>《产品与包装策划方案》</div>
+        <div class="deliverable-item"><div class="dot"></div>《产品包装全周期服务方案》（如菌菇酱系列、芝斛者也礼盒）</div>
+        <div class="deliverable-item"><div class="dot"></div>内部《体验礼盒创意与反馈汇总》</div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">闭环协同对象</div>
+        <span class="stakeholder-chip">市场部（设计及收集反馈）</span>
+        <span class="stakeholder-chip">技术（改进方案制定及执行落地）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 3 -->
+  <div class="stage-card" id="stage3">
+    <div class="stage-header">
+      <div class="stage-num" style="background:#b94f00">3</div>
+      <div class="stage-title-wrap">
+        <h2>工艺与设备方案共创</h2>
+        <p class="stage-goal">在保证终端体验不打折扣的前提下，把创新包装落地到工艺与设备方案上，同时让生产更灵活、更经济（含方案评审、产线改造、降本增效）</p>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="col">
+        <div class="col-label">仅一在做什么</div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">方案评审与设计细化</div>
+          <div class="activity-item">与客户完成方案细化、DQ、人流物流评估及现场方案评审（达能 DQ、雀巢人流物流、大江生医、九阳和陕西飞鹤等）</div>
+          <div class="activity-item">听装线、可变袋宽线项目中通过方案共创确保灌装精度和外观质量</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">多规格与多产品兼容改造</div>
+          <div class="activity-item">海蓉双充填实现丸剂和颗粒剂切换，支持"四妙丸"上市</div>
+          <div class="activity-item">济川药业新增计量盒实现 1g 规格；肆只猫多层 / 50 条规格装盒；飞鹤听装线兼容异型罐</div>
+          <div class="activity-item">秦龙、石家庄四药、振东等通过更换螺杆 / 列数，实现新物料、丸剂与颗粒剂兼容</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">降本增效与结构优化</div>
+          <div class="activity-item">迪康盒型从同向插舌改为异向插舌，排版更紧凑；积大 12 列升级无废边节省卷膜</div>
+          <div class="activity-item">双鲸将隔板兼做说明书；扬子江胃苏颗粒、精方取消纸质说明书，降低包装复杂度</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">关键交付物</div>
+        <div class="deliverable-item"><div class="dot"></div>《现场方案评审与 DQ 记录》</div>
+        <div class="deliverable-item"><div class="dot"></div>《人流物流与操作便利性评估》</div>
+        <div class="deliverable-item"><div class="dot"></div>《产线兼容性改造方案与实施记录》（海蓉、济川、飞鹤等）</div>
+        <div class="deliverable-item"><div class="dot"></div>《降本增效结构改造方案》（迪康、积大、双鲸、扬子江等）</div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">闭环协同对象</div>
+        <span class="stakeholder-chip">技术部</span>
+        <span class="stakeholder-chip">客保部</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 4 -->
+  <div class="stage-card" id="stage4">
+    <div class="stage-header">
+      <div class="stage-num" style="background:#7b3fa8">4</div>
+      <div class="stage-title-wrap">
+        <h2>试制与体验相关质量验证（FAT &amp; JFAT）</h2>
+        <p class="stage-goal">在设备出厂和正式量产前，通过 FAT / JFAT 把影响终端体验的关键质量点前置解决，避免漏封、渗漏、外观缺陷等问题进入市场</p>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="col">
+        <div class="col-label">仅一在做什么</div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">客户参与式装配与调试</div>
+          <div class="activity-item">邀请客户工程与操作人员深度参与装配调试及 FAT（如银朵兰客户参与装配调试并在 FAT 阶段自己开机）</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">JFAT 前置验证机制</div>
+          <div class="activity-item">雀巢八列机项目（2022 年 3 月）：提前完成 JFAT，使 FAT 快速一次通过；客户在总结报告中特别提及并继续追加整线采购</div>
+          <div class="activity-item">前置验证显著减少后续量产不合格品流入市场影响消费者体验的可能性</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">液体与密封质量专项验证</div>
+          <div class="activity-item">奇正液体机项目提供渗透检测方案；大江生医项目提升液体检测 JFAT 标准</div>
+          <div class="activity-item">结合降本增效改造项目，对关键部位实机验证，确保不出现开封困难、漏粉漏液、外观变形等问题</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">关键交付物</div>
+        <div class="deliverable-item"><div class="dot"></div>《FAT / JFAT 计划与记录》</div>
+        <div class="deliverable-item"><div class="dot"></div>《客户参与装配与调试纪要》（银朵兰、雀巢等）</div>
+        <div class="deliverable-item"><div class="dot"></div>《液体渗透检测与 JFAT 标准优化方案》（奇正、大江生医等）</div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">闭环协同对象</div>
+        <span class="stakeholder-chip">客保部</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 5 -->
+  <div class="stage-card" id="stage5">
+    <div class="stage-header">
+      <div class="stage-num" style="background:#0077a8">5</div>
+      <div class="stage-title-wrap">
+        <h2>量产导入与体验稳定</h2>
+        <p class="stage-goal">在长期量产过程中，通过培训与制度确保包装质量稳定可控，让消费者持续获得一致的体验（SAT、TPM 培训、机手大赛、客户专场培训）</p>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="col">
+        <div class="col-label">仅一在做什么</div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">SAT 支持与快速达产</div>
+          <div class="activity-item">金华银河项目：产量历史性突破 100 万袋，OEE 达 86.7%</div>
+          <div class="activity-item">微康 2 号线：倒排计划保障提前发货，一次 FAT 通过后顺利投产</div>
+          <div class="activity-item">多个项目获感谢信和锦旗（寿仙谷、百跃御恭、白药等）</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">TPM 活动长期推进</div>
+          <div class="activity-item">持续开展 TPM 活动（2014 年起）、机手大赛（2014–2025 至少 17 届），提升操作人员对设备、质量和包装状态的敏感度</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">客户专场培训支持</div>
+          <div class="activity-item">从 2016 年飞鹤、石药等专场，到 2023–2025 年白药、朗迪、健民、金华银河、王老吉、广药中一、步长等多场专项培训</div>
+          <div class="activity-item">聚焦操作维护、规格切换、品质控制，使客户团队能稳定维护包装体验</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">机手大赛能力建设机制</div>
+          <div class="activity-item">将"最佳操作实践"以照片、视频和标准文件形式固化，减少人员变动导致的体验质量波动，同时收集一线反馈推动设备优化</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">关键交付物</div>
+        <div class="deliverable-item"><div class="dot"></div>SAT 验收报告与产量 / OEE 数据</div>
+        <div class="deliverable-item"><div class="dot"></div>《TPM 活动与机手大赛总结》</div>
+        <div class="deliverable-item"><div class="dot"></div>《客户专场培训课件与签到 / 反馈汇总》</div>
+        <div class="deliverable-item"><div class="dot"></div>《操作维护与规格切换最佳实践》</div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">闭环协同对象</div>
+        <span class="stakeholder-chip">客拓部</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 6 -->
+  <div class="stage-card" id="stage6">
+    <div class="stage-header">
+      <div class="stage-num" style="background:#a84f4f">6</div>
+      <div class="stage-title-wrap">
+        <h2>工厂与品牌空间体验打造</h2>
+        <p class="stage-goal">通过工厂形象、展厅和参观动线，让渠道、专业观众及消费者代表在参观中感受到"专业、可靠、值得信赖"的品牌体验（工厂品牌形象系统、建筑与动线优化）</p>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="col">
+        <div class="col-label">仅一在做什么</div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">工厂品牌形象系统建设</div>
+          <div class="activity-item">为客户规划工厂品牌形象系统：包括厂区导视系统（如健民项目）、统一视觉标准，让来访者从进入厂区即感受到品牌专业形象</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">品牌展厅与沉浸式体验打造</div>
+          <div class="activity-item">设计健民展厅等品牌展厅，用实物、互动装置和产品展示讲述"产品从原料到包装"的全流程故事</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">参观动线规划</div>
+          <div class="activity-item">为英氏、科拓生物、亚宝等客户做参观动线规划，让参观者看到关键工序、质量控制节点和代表性包装案例</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">工厂建筑与数字化展示</div>
+          <div class="activity-item">为佐丹力等客户进行新建工厂布局改造；为"一号园数字孪生工厂"等项目提供绿色建筑与数字孪生系统设计</div>
+          <div class="activity-item">支持客户在对外沟通中展示智能制造与绿色生产能力，间接提升消费者对品牌的信任</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">关键交付物</div>
+        <div class="deliverable-item"><div class="dot"></div>《工厂品牌形象系统方案》（含导视、视觉规范等）</div>
+        <div class="deliverable-item"><div class="dot"></div>《品牌展厅与沉浸式体验设计方案》（如健民展厅）</div>
+        <div class="deliverable-item"><div class="dot"></div>《参观动线规划方案》（英氏、科拓生物、亚宝等）</div>
+        <div class="deliverable-item"><div class="dot"></div>《工厂建筑布局与数字孪生设计方案》（佐丹力、一号园等）</div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">闭环协同对象</div>
+        <span class="stakeholder-chip">市场部</span>
+        <span class="stakeholder-chip">外联团队</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 7 -->
+  <div class="stage-card" id="stage7">
+    <div class="stage-header">
+      <div class="stage-num" style="background:#4f7b00">7</div>
+      <div class="stage-title-wrap">
+        <h2>市场运营与持续体验升级</h2>
+        <p class="stage-goal">通过礼盒 / 联名 / 创新包装和持续的终端产品调研，让消费者不断感受到稳定且优化的体验，并把经验沉淀回前端策划与设备设计（节日礼盒、联名活动、专员终端调研）</p>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="col">
+        <div class="col-label">仅一在做什么</div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">活动体验品赋能与创新包装持续输出</div>
+          <div class="activity-item">协助合作伙伴 / 协会做节日限定高端伴手礼和活动礼盒（布勒礼盒、E 药经理人活动礼盒等），创造更强的开箱仪式感和礼赠体验</div>
+          <div class="activity-item">持续输出"福袋""兔耳朵""蒟蒻果冻"等结构与视觉创新，让新品在货架和社交媒体上更容易被消费者记住</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">专员终端产品调研机制</div>
+          <div class="activity-item">专员每月到市场收集客户真实产出的产品（不同批次、不同渠道），系统排查包装和使用体验问题</div>
+          <div class="activity-item">在客户发现之前识别问题，反馈给内部设备与设计团队，提前做好设备参数优化、结构 / 版式调整</div>
+        </div>
+
+        <div class="activity-group">
+          <div class="activity-group-title">节日礼盒与创新包装持续输出</div>
+          <div class="activity-item">每年两次仅一自有"体验品礼盒"项目，作为"包装体验实验室"：尝试新结构、新组合与新视觉表达，收集体验反馈并应用于客户项目</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">关键交付物</div>
+        <div class="deliverable-item"><div class="dot"></div>体验品 / 伴手礼设计与落地方案（布勒、E 药经理人等）</div>
+        <div class="deliverable-item"><div class="dot"></div>《创新包装设计案例集》（福袋、兔耳朵、蒟蒻果冻等）</div>
+        <div class="deliverable-item"><div class="dot"></div>《专员终端产品调研月度记录与问题清单》</div>
+        <div class="deliverable-item"><div class="dot"></div>《终端产品问题改善闭环记录》</div>
+        <div class="deliverable-item"><div class="dot"></div>《仅一年度体验品礼盒回顾与经验报告》</div>
+        <div class="deliverable-item"><div class="dot"></div>成功案例内部推文、官网新闻与客户喜报合集</div>
+      </div>
+
+      <div class="col">
+        <div class="col-label">闭环协同对象</div>
+        <span class="stakeholder-chip">市场部</span>
+        <span class="stakeholder-chip">外联团队</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  仅一终端消费者体验全价值流 · 市场部整理 · 2026
+</footer>
+
+<script>
+  // Active nav highlight on scroll
+  const sections = document.querySelectorAll('.stage-card');
+  const navLinks = document.querySelectorAll('.nav-wrap a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const id = e.target.id;
+        const link = document.querySelector(`.nav-wrap a[href="#${id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
